@@ -41,6 +41,9 @@ network_name = os.environ.get("DOCKER_NETWORK_NAME", "workshop-net")
 c.DockerSpawner.network_name = network_name
 c.DockerSpawner.use_internal_ip = True
 
+# Tell spawned containers how to reach the Hub (crucial for Docker-in-Docker setup)
+c.JupyterHub.hub_connect_ip = "jupyterhub"
+
 # Clean up containers when servers stop
 c.DockerSpawner.remove = True
 

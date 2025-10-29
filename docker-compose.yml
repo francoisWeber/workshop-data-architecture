@@ -7,7 +7,7 @@ networks:
 services:
   jupyterhub:
     build:
-      context: jupyterhub
+      context: ./jupyterhub
     container_name: jupyterhub
     env_file:
       - workshop.env
