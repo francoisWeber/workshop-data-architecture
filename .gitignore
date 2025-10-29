@@ -1,0 +1,6 @@
+minio/
+mysql/
+qdrant/
+redis/
+spark/
+vespa/

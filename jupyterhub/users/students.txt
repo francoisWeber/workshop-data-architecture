@@ -1,0 +1,5 @@
+# One student name per line. Lines starting with # are ignored.
+# Example:
+Alice Dupond
+Bob Martin
+Charlie Durand

@@ -1,0 +1,135 @@
+name: workshop-stack
+
+networks:
+  workshop-net:
+    name: workshop-net
+
+services:
+  jupyterhub:
+    build:
+      context: jupyterhub
+    container_name: jupyterhub
+    env_file:
+      - workshop.env
+    environment:
+      DOCKER_NETWORK_NAME: workshop-net
+      HOST_PROJECT_ROOT: /Users/francois.weber/code/workshop-data-architecture
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./jupyterhub/data:/srv/jupyterhub/data
+      - ./jupyterhub/users:/srv/jupyterhub/users:ro
+      - ./work:/work
+      - ./dataset:/datasets:ro
+    ports:
+      - "8000:8000"
+    networks:
+      - workshop-net
+    depends_on:
+      - spark-master
+      - mysql
+      - redis
+      - qdrant
+      - minio
+      - vespa
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    env_file:
+      - workshop.env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - workshop-net
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    env_file:
+      - workshop.env
+    command: ["sh", "-c", "exec redis-server --requirepass \"$$REDIS_PASSWORD\""]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+    networks:
+      - workshop-net
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"   # HTTP
+      - "6334:6334"   # gRPC
+    volumes:
+      - ./qdrant/storage:/qdrant/storage
+    networks:
+      - workshop-net
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    env_file:
+      - workshop.env
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Console UI
+    volumes:
+      - ./minio/data:/data
+      - ./dataset:/datasets:ro
+    networks:
+      - workshop-net
+
+  vespa:
+    image: vespaengine/vespa:latest
+    container_name: vespa
+    hostname: vespa
+    privileged: true
+    ports:
+      - "8080:8080"   # Query/Document API
+      - "19071:19071" # Config server
+      - "19050:19050" # Admin/metrics
+    volumes:
+      - ./vespa/var:/opt/vespa/var
+      - ./vespa/app:/app
+    networks:
+      - workshop-net
+
+  spark-master:
+    image: bitnamilegacy/spark:latest
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "7077:7077"   # Spark master
+      - "8082:8080"   # Spark master UI (host port 8082)
+    volumes:
+      - ./spark:/bitnami
+    networks:
+      - workshop-net
+
+  spark-worker-1:
+    image: bitnamilegacy/spark:latest
+    container_name: spark-worker-1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=28G
+      - SPARK_WORKER_CORES=26
+    depends_on:
+      - spark-master
+    ports:
+      - "8081:8081"   # Spark worker UI
+    volumes:
+      - ./spark:/bitnami
+    networks:
+      - workshop-net
