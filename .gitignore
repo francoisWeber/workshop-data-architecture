@@ -14,3 +14,4 @@ shared/*
 !shared/exercises/.gitkeep
 !shared/solutions/.gitkeep
 !shared/data/.gitkeep
+workshop.env
