@@ -12,10 +12,12 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 USERS_DIR = ROOT / "jupyterhub" / "users"
+JUPYTERHUB_DIR = ROOT / "jupyterhub"
 STUDENTS_TXT = USERS_DIR / "students.txt"
 USERS_CSV = USERS_DIR / "users.csv"
 ALLOWLIST = USERS_DIR / "allowlist.txt"
 ADMINS = USERS_DIR / "admins.txt"
+ADMIN_PASSWORD_FILE = JUPYTERHUB_DIR / "admin.password"
 
 
 def normalize_name(name: str) -> str:
@@ -70,6 +72,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate JupyterHub users and passwords from students.txt")
     parser.add_argument("--students", default=str(STUDENTS_TXT), help="Path to students.txt")
     parser.add_argument("--admins", default="admin", help="Comma-separated admin names (default: admin)")
+    parser.add_argument("--admin-password-file", default=str(ADMIN_PASSWORD_FILE), help="Path to admin.password file")
     parser.add_argument("--outdir", default=str(USERS_DIR), help="Output directory for users files")
     args = parser.parse_args()
 
@@ -79,6 +82,19 @@ def main():
     students_path = Path(args.students)
     if not students_path.exists():
         print(f"students.txt not found at {students_path}", file=sys.stderr)
+        sys.exit(1)
+
+    # Read admin password from file
+    admin_password_path = Path(args.admin_password_file)
+    if not admin_password_path.exists():
+        print(f"admin.password not found at {admin_password_path}", file=sys.stderr)
+        sys.exit(1)
+    
+    with admin_password_path.open() as f:
+        admin_password = f.read().strip()
+    
+    if not admin_password:
+        print("admin.password file is empty", file=sys.stderr)
         sys.exit(1)
 
     # Read input names
@@ -108,8 +124,9 @@ def main():
     admin_unames = []
     for name in full_names:
         uname = uname_map[name]
-        pwd = random_password()
         is_admin = name in admin_names
+        # Use static password for admin, random for others
+        pwd = admin_password if is_admin else random_password()
         rows.append({
             "name": name,
             "username": uname,

@@ -3,7 +3,7 @@ set -euo pipefail
 
 USERS_DIR="/srv/jupyterhub/users"
 USERS_CSV="$USERS_DIR/users.csv"
-ADMIN_PASSWORD_FILE="$USERS_DIR/admin_password.txt"
+ADMIN_PASSWORD_FILE="/srv/jupyterhub/admin.password"
 
 # Load admin password from file if it exists
 ADMIN_PASSWORD=""

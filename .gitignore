@@ -4,5 +4,6 @@ qdrant/
 redis/
 spark/
 vespa/
-jupyterhub/users/admin_password.txt
+jupyterhub/admin.password
 jupyterhub/users/*
+jupyterhub/students.txt

@@ -18,6 +18,7 @@ services:
     volumes:
       - ./jupyterhub/data:/srv/jupyterhub/data
       - ./jupyterhub/users:/srv/jupyterhub/users:ro
+      - ./jupyterhub/admin.password:/srv/jupyterhub/admin.password:ro
       - ./work:/work
       - ./dataset:/datasets:ro
       - jupyterhub-homes:/home
