@@ -23,6 +23,10 @@ RUN python3 -m pip install --no-cache-dir \
     qdrant-client \
     fsspec s3fs
 
+# Install Hadoop AWS JARs for S3 access in PySpark
+COPY install_s3_jars.py /tmp/install_s3_jars.py
+RUN python3 /tmp/install_s3_jars.py && rm /tmp/install_s3_jars.py
+
 COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
