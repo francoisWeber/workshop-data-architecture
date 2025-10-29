@@ -5,3 +5,4 @@ redis/
 spark/
 vespa/
 jupyterhub/users/admin_password.txt
+jupyterhub/users/*

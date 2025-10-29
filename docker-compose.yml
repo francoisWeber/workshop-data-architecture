@@ -4,6 +4,10 @@ networks:
   workshop-net:
     name: workshop-net
 
+volumes:
+  jupyterhub-homes:
+    name: jupyterhub-homes
+
 services:
   jupyterhub:
     build:
@@ -16,6 +20,7 @@ services:
       - ./jupyterhub/users:/srv/jupyterhub/users:ro
       - ./work:/work
       - ./dataset:/datasets:ro
+      - jupyterhub-homes:/home
     ports:
       - "8000:8000"
     networks:

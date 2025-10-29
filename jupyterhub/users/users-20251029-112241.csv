@@ -1,5 +1,3 @@
-name,username,password,is_admin
-admin,admin,kIqeHckD84H5DJn1,true
-Alice Dupond,adupond,0Vpa66R2lCVq87Wt,false
-Bob Martin,bmartin,5y52HpWxsYuMohuh,false
-Charlie Durand,cdurand,IlE2ChpAHD8kPqUK,false
+version https://git-lfs.github.com/spec/v1
+oid sha256:f500787b3ed224dee125e0f53abc9406cb34d89fa9f87637bc04c1ebc163735c
+size 203

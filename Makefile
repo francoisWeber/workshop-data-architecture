@@ -3,7 +3,7 @@ JUPYTER_IMAGE ?= jupyter/pyspark-notebook:latest
 ADMINS ?= admin
 STUDENTS ?= jupyterhub/users/students.txt
 
-.PHONY: help up down start stop restart build rebuild-hub logs logs-hub ps pull generate-users pull-notebook clean
+.PHONY: help up down start stop restart build rebuild-hub logs logs-hub ps pull generate-users pull-notebook clean purge-homes
 
 help:
 	@echo "Common targets:"
@@ -21,6 +21,7 @@ help:
 	@echo "  pull-notebook    - Pre-pull single-user notebook image ($(JUPYTER_IMAGE))"
 	@echo "  generate-users   - Generate users.csv, allowlist, admins from $(STUDENTS)"
 	@echo "  clean            - Stop and remove containers AND volumes (DATA LOSS)"
+	@echo "  purge-homes      - Remove JupyterHub user home directories volume (DATA LOSS)"
 
 up:
 	docker compose up -d
@@ -63,3 +64,15 @@ generate-users:
 
 clean:
 	docker compose down -v
+
+purge-homes:
+	@echo "WARNING: This will delete all user home directories!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		docker compose down jupyterhub && \
+		docker volume rm jupyterhub-homes || true; \
+		echo "User home directories volume purged."; \
+	else \
+		echo "Cancelled."; \
+	fi

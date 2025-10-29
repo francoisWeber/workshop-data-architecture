@@ -37,9 +37,47 @@ if [ -f "$USERS_CSV" ]; then
     if [ -n "$password" ]; then
       echo "$username:$password" | chpasswd || true
     fi
+
+    # Create README for datasets in user's home directory
+    USER_HOME="/home/$username"
+    if [ -d "$USER_HOME" ]; then
+      cat > "$USER_HOME/README_DATASETS.txt" <<'EOF'
+# Workshop Datasets
+
+The workshop datasets are available in read-only mode at:
+  /datasets/
+
+Available dataset directories:
+  - /datasets/sql/       - SQL dump files for database initialization
+  - /datasets/csv/       - CSV formatted data files
+  - /datasets/cliclog/   - Click log interactions data
+  - /datasets/vespa/     - Vespa search engine data (JSONL format)
+
+These directories are mounted read-only, so you cannot modify them.
+Copy files to your home directory or /work if you need to make changes.
+
+Example usage in Python:
+  import pandas as pd
+  df = pd.read_csv('/datasets/csv/yourfile.csv')
+
+Example usage in Shell:
+  ls -la /datasets/
+  cp /datasets/csv/yourfile.csv ~/my-copy.csv
+EOF
+      chown "$username:$username" "$USER_HOME/README_DATASETS.txt" 2>/dev/null || true
+      chmod 644 "$USER_HOME/README_DATASETS.txt" 2>/dev/null || true
+    fi
   done
 else
   echo "[start.sh] No users.csv found at $USERS_CSV (skipping user creation)"
+fi
+
+# Verify datasets directory is accessible
+if [ -d "/datasets" ]; then
+  echo "[start.sh] Datasets directory mounted at /datasets (read-only)"
+  ls -la /datasets/ 2>/dev/null || echo "  Warning: Could not list /datasets directory"
+else
+  echo "[start.sh] Warning: /datasets directory not found"
 fi
 
 exec jupyterhub -f /srv/jupyterhub/jupyterhub_config.py
