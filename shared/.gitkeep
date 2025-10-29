@@ -1,0 +1,3 @@
+# This file ensures the shared directory structure is tracked by git
+# Actual content in subdirectories should be git-ignored
+

@@ -7,6 +7,8 @@ networks:
 volumes:
   jupyterhub-homes:
     name: jupyterhub-homes
+  jupyterhub-shared:
+    name: jupyterhub-shared
 
 services:
   jupyterhub:
@@ -21,6 +23,7 @@ services:
       - ./jupyterhub/admin.password:/srv/jupyterhub/admin.password:ro
       - ./work:/work
       - ./dataset:/datasets:ro
+      - jupyterhub-shared:/shared
       - jupyterhub-homes:/home
     ports:
       - "8000:8000"

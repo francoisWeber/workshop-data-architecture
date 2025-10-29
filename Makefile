@@ -3,7 +3,7 @@ JUPYTER_IMAGE ?= jupyter/pyspark-notebook:latest
 ADMINS ?= admin
 STUDENTS ?= jupyterhub/users/students.txt
 
-.PHONY: help up down start stop restart build rebuild-hub logs logs-hub ps pull generate-users pull-notebook clean purge-homes init-minio s3-ls
+.PHONY: help up down start stop restart build rebuild-hub logs logs-hub ps pull generate-users pull-notebook clean purge-homes init-minio init-shared s3-ls
 
 help:
 	@echo "Common targets:"
@@ -21,6 +21,7 @@ help:
 	@echo "  pull-notebook    - Pre-pull single-user notebook image ($(JUPYTER_IMAGE))"
 	@echo "  generate-users   - Generate users.csv, allowlist, admins from $(STUDENTS)"
 	@echo "  init-minio       - Initialize MinIO buckets and upload CSV datasets"
+	@echo "  init-shared      - Initialize shared directory volume (first-time setup)"
 	@echo "  s3-ls            - List files in MinIO S3 bucket"
 	@echo "  clean            - Stop and remove containers AND volumes (DATA LOSS)"
 	@echo "  purge-homes      - Remove JupyterHub user home directories volume (DATA LOSS)"
@@ -68,6 +69,10 @@ init-minio:
 	@echo "Initializing MinIO S3 buckets..."
 	@export $$(cat workshop.env | grep -v '^#' | xargs) && \
 	MINIO_ENDPOINT=http://localhost:9000 python3 scripts/init_minio.py
+
+init-shared:
+	@echo "Initializing shared directory volume..."
+	@bash scripts/init_shared.sh
 
 s3-ls:
 	@echo "Listing S3 bucket contents..."

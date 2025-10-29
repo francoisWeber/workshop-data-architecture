@@ -7,3 +7,10 @@ vespa/
 jupyterhub/admin.password
 jupyterhub/users/*
 jupyterhub/students.txt
+shared/*
+!shared/.gitkeep
+!shared/README.md
+!shared/lectures/.gitkeep
+!shared/exercises/.gitkeep
+!shared/solutions/.gitkeep
+!shared/data/.gitkeep
