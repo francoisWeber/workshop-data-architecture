@@ -9,6 +9,7 @@ volumes:
     name: jupyterhub-homes
   jupyterhub-shared:
     name: jupyterhub-shared
+    external: true
 
 services:
   jupyterhub:
