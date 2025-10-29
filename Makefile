@@ -3,7 +3,7 @@ JUPYTER_IMAGE ?= jupyter/pyspark-notebook:latest
 ADMINS ?= admin
 STUDENTS ?= jupyterhub/users/students.txt
 
-.PHONY: help up down start stop restart build rebuild-hub logs logs-hub ps pull generate-users pull-notebook clean purge-homes
+.PHONY: help up down start stop restart build rebuild-hub logs logs-hub ps pull generate-users pull-notebook clean purge-homes init-minio s3-ls
 
 help:
 	@echo "Common targets:"
@@ -20,6 +20,8 @@ help:
 	@echo "  pull             - Pull latest images"
 	@echo "  pull-notebook    - Pre-pull single-user notebook image ($(JUPYTER_IMAGE))"
 	@echo "  generate-users   - Generate users.csv, allowlist, admins from $(STUDENTS)"
+	@echo "  init-minio       - Initialize MinIO buckets and upload CSV datasets"
+	@echo "  s3-ls            - List files in MinIO S3 bucket"
 	@echo "  clean            - Stop and remove containers AND volumes (DATA LOSS)"
 	@echo "  purge-homes      - Remove JupyterHub user home directories volume (DATA LOSS)"
 
@@ -61,6 +63,16 @@ pull-notebook:
 
 generate-users:
 	python3 scripts/generate_user_credentials.py --students "$(STUDENTS)" --admins "$(ADMINS)"
+
+init-minio:
+	@echo "Initializing MinIO S3 buckets..."
+	@export $$(cat workshop.env | grep -v '^#' | xargs) && \
+	MINIO_ENDPOINT=http://localhost:9000 python3 scripts/init_minio.py
+
+s3-ls:
+	@echo "Listing S3 bucket contents..."
+	@docker exec -it minio mc ls --recursive local/workshop-data/ 2>/dev/null || \
+		echo "MinIO container not running. Start with 'make up' first."
 
 clean:
 	docker compose down -v

@@ -44,25 +44,51 @@ if [ -f "$USERS_CSV" ]; then
       cat > "$USER_HOME/README_DATASETS.txt" <<'EOF'
 # Workshop Datasets
 
-The workshop datasets are available in read-only mode at:
-  /datasets/
+## Access Methods
 
-Available dataset directories:
-  - /datasets/sql/       - SQL dump files for database initialization
-  - /datasets/csv/       - CSV formatted data files
-  - /datasets/cliclog/   - Click log interactions data
-  - /datasets/vespa/     - Vespa search engine data (JSONL format)
+### 1. Direct File Access (Read-Only)
+All datasets are mounted at /datasets/
 
-These directories are mounted read-only, so you cannot modify them.
-Copy files to your home directory or /work if you need to make changes.
-
-Example usage in Python:
   import pandas as pd
-  df = pd.read_csv('/datasets/csv/yourfile.csv')
+  df = pd.read_csv('/datasets/csv/beers.csv')
 
-Example usage in Shell:
+### 2. S3 Access via MinIO (Anonymous - RECOMMENDED!)
+After running 'make init-minio', datasets are available via S3 without credentials:
+
+  import pandas as pd
+  df = pd.read_csv(
+      's3://workshop-data/csv/beers.csv',
+      storage_options={
+          'client_kwargs': {
+              'endpoint_url': 'http://minio:9000'
+          }
+      }
+  )
+
+See /work/s3_pandas_examples.py for more examples!
+
+## Available Datasets
+
+### CSV Files (also in S3: s3://workshop-data/csv/)
+  - categories.csv          - Beer categories
+  - styles.csv              - Beer styles
+  - breweries.csv           - Brewery information
+  - breweries_geocode.csv   - Brewery geocodes
+  - beers.csv               - Beer details
+
+### Other Formats
+  - /datasets/sql/       - SQL dump files
+  - /datasets/cliclog/   - Click log interactions data
+  - /datasets/vespa/     - Vespa search engine data (JSONL)
+
+## S3 Information
+  - Endpoint: http://minio:9000
+  - Bucket: workshop-data (PUBLIC READ ACCESS)
+  - Console: http://localhost:9001 (from host)
+
+## Shell Commands
   ls -la /datasets/
-  cp /datasets/csv/yourfile.csv ~/my-copy.csv
+  cp /datasets/csv/beers.csv ~/my-copy.csv
 EOF
       chown "$username:$username" "$USER_HOME/README_DATASETS.txt" 2>/dev/null || true
       chmod 644 "$USER_HOME/README_DATASETS.txt" 2>/dev/null || true

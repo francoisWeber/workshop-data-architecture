@@ -20,7 +20,8 @@ RUN python3 -m pip install --no-cache-dir \
     pymysql \
     redis \
     boto3 \
-    qdrant-client
+    qdrant-client \
+    fsspec s3fs
 
 COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
 COPY start.sh /usr/local/bin/start.sh
