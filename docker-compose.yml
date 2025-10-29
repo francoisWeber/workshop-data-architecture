@@ -11,11 +11,7 @@ services:
     container_name: jupyterhub
     env_file:
       - workshop.env
-    environment:
-      DOCKER_NETWORK_NAME: workshop-net
-      HOST_PROJECT_ROOT: /Users/francois.weber/code/workshop-data-architecture
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - ./jupyterhub/data:/srv/jupyterhub/data
       - ./jupyterhub/users:/srv/jupyterhub/users:ro
       - ./work:/work

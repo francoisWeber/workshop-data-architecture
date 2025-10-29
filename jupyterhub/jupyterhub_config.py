@@ -30,29 +30,12 @@ if admins_file.exists():
 if admin_users:
     c.Authenticator.admin_users = admin_users
 
-# Use DockerSpawner to spawn per-user notebook containers
-c.JupyterHub.spawner_class = "dockerspawner.DockerSpawner"
+# Use the default LocalProcessSpawner to run all users in the same container
+# c.JupyterHub.spawner_class = "jupyterhub.spawner.SimpleLocalProcessSpawner"
+# (default spawner is already LocalProcessSpawner, no need to set it explicitly)
 
-# The image for single-user notebook servers (PySpark included)
-c.DockerSpawner.image = os.environ.get("JUPYTER_SPAWN_IMAGE", "jupyter/pyspark-notebook:latest")
-
-# Attach spawned containers to the compose network
-network_name = os.environ.get("DOCKER_NETWORK_NAME", "workshop-net")
-c.DockerSpawner.network_name = network_name
-c.DockerSpawner.use_internal_ip = True
-
-# Tell spawned containers how to reach the Hub (crucial for Docker-in-Docker setup)
-c.JupyterHub.hub_connect_ip = "jupyterhub"
-
-# Clean up containers when servers stop
-c.DockerSpawner.remove = True
-
-# Per-user persistent work volume and shared dataset from host path
-host_root = os.environ.get("HOST_PROJECT_ROOT", "/Users/francois.weber/code/workshop-data-architecture")
-c.DockerSpawner.volumes = {
-    "work-{username}": {"bind": "/home/jovyan/work", "mode": "rw"},
-    f"{host_root}/dataset": {"bind": "/home/jovyan/datasets", "mode": "ro"},
-}
+# Users will run as local processes within this container
+# Each user gets their own home directory at /home/{username}
 
 # Start JupyterLab by default
 c.Spawner.default_url = "/lab"

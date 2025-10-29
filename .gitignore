@@ -4,3 +4,4 @@ qdrant/
 redis/
 spark/
 vespa/
+jupyterhub/users/admin_password.txt

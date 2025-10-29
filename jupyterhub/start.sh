@@ -3,6 +3,14 @@ set -euo pipefail
 
 USERS_DIR="/srv/jupyterhub/users"
 USERS_CSV="$USERS_DIR/users.csv"
+ADMIN_PASSWORD_FILE="$USERS_DIR/admin_password.txt"
+
+# Load admin password from file if it exists
+ADMIN_PASSWORD=""
+if [ -f "$ADMIN_PASSWORD_FILE" ]; then
+  ADMIN_PASSWORD="$(cat "$ADMIN_PASSWORD_FILE" | xargs)"
+  echo "[start.sh] Loaded admin password from $ADMIN_PASSWORD_FILE"
+fi
 
 if [ -f "$USERS_CSV" ]; then
   echo "[start.sh] Creating users from $USERS_CSV"
@@ -12,6 +20,12 @@ if [ -f "$USERS_CSV" ]; then
     username="$(echo "$username" | xargs)"
     password="$(echo "$password" | xargs)"
     [ -z "$username" ] && continue
+
+    # Override admin password if static password is configured
+    if [ "$username" = "admin" ] && [ -n "$ADMIN_PASSWORD" ]; then
+      password="$ADMIN_PASSWORD"
+      echo "  - Using static password for admin user"
+    fi
 
     if id -u "$username" >/dev/null 2>&1; then
       echo "  - User exists: $username"
